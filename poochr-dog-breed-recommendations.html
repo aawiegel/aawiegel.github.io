@@ -3,28 +3,28 @@
 <head>
         <title>Poochr: dog breed recommendations</title>
         <meta charset="utf-8" />
-        <link rel="stylesheet" href="http://aawiegel.github.io/theme/css/main.css" type="text/css" />
+        <link rel="stylesheet" href="https://aawiegel.github.io/theme/css/main.css" type="text/css" />
    
 
         <!--[if IE]>
                 <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
         <!--[if lte IE 7]>
-                <link rel="stylesheet" type="text/css" media="all" href="http://aawiegel.github.io/css/ie.css"/>
-                <script src="http://aawiegel.github.io/js/IE8.js" type="text/javascript"></script><![endif]-->
+                <link rel="stylesheet" type="text/css" media="all" href="https://aawiegel.github.io/css/ie.css"/>
+                <script src="https://aawiegel.github.io/js/IE8.js" type="text/javascript"></script><![endif]-->
 
         <!--[if lt IE 7]>
-                <link rel="stylesheet" type="text/css" media="all" href="http://aawiegel.github.io/css/ie6.css"/><![endif]-->
+                <link rel="stylesheet" type="text/css" media="all" href="https://aawiegel.github.io/css/ie6.css"/><![endif]-->
 
 </head>
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="http://aawiegel.github.io">Tyranny of the Variance </a></h1>
+                <h1><a href="https://aawiegel.github.io">Tyranny of the Variance </a></h1>
                 <nav><ul>
-                    <li ><a href="http://aawiegel.github.io/category/career-advice.html">Career Advice</a></li>
-                    <li ><a href="http://aawiegel.github.io/category/impressions.html">Impressions</a></li>
-                    <li class="active"><a href="http://aawiegel.github.io/category/projects.html">Projects</a></li>
+                    <li ><a href="https://aawiegel.github.io/category/career-advice.html">Career Advice</a></li>
+                    <li ><a href="https://aawiegel.github.io/category/impressions.html">Impressions</a></li>
+                    <li class="active"><a href="https://aawiegel.github.io/category/projects.html">Projects</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
@@ -42,15 +42,15 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
+                By <a class="url fn" href="https://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
         </address>
-<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>. </p>
+<p>In <a href="https://aawiegel.github.io/category/projects.html">Projects</a>. </p>
 </footer><!-- /.post-info -->      <h1>Dog breed recommendations</h1>
-<p>The <a href="https://github.com/aawiegel/Poochr">code</a> is available online. This is part of a two part series where the second part can be found <a href="http://aawiegel.github.io/poochr-2-electric-dogaloo.html">here</a>.</p>
+<p>The <a href="https://github.com/aawiegel/Poochr">code</a> is available online. This is part of a two part series where the second part can be found <a href="https://aawiegel.github.io/poochr-2-electric-dogaloo.html">here</a>.</p>
 <h2>Summary</h2>
 <p>Recently, my house mate decided to get a Siberian husky because it is a pretty dog. He didn't realize, though, that huskies are very social and incredibly active even compared to your typical dog. This temperament is not necessarily conducive to his lifestyle, so the situation has not been ideal for either him or the dog (or his house mates.) Based on this, I thought it would be a good idea to come up with a recommendation engine that suggests dogs based on both an image (appearance) and text description (temperament).</p>
 <p><br/></p>
-<p><img src="http://aawiegel.github.io/images/bella.jpg" alt="a very active, vocal, and social dog" style="width: 100%;"/></p>
+<p><img src="https://aawiegel.github.io/images/bella.jpg" alt="a very active, vocal, and social dog" style="width: 100%;"/></p>
 <p>A rare moment where she is actually sitting still (getting a picture that wasn't a blur was the hardest part of this project.)</p>
 <p><br/></p>
 <p>To do this, I created vector representations (i.e., a column of numbers) of both a dog breed's appearance and temperament and combined them into one recommendation system. The representation of appearance came from a deep learning dog breed image classifier, and the representation of the temperament came from a dog breed topic model.  The resulting breed topic and image vectors were then compared to a user image and text to recommend the three most similar dogs. Purely appearance driven recommendations seemed to be more accurate but were not aggressive enough of labeling "not dog" images. Conversely, the text part was sometimes a bit off from data quality issues (some of the text I web scraped contradicted itself). Based on initial user feedback, I was able to improve the system's recommendations, To help improve the system in the future, I stored the user input in a database and solicited feedback on the quality of the recommendations and possible useful features.</p>
@@ -65,11 +65,11 @@
 <p><br/></p>
 <p>After using class weights, the accuracy rose to about 92% on the test set, although the model was much better at identifying some breeds than others. For example, the model identified the Samoyed breed correctly 98.7% of the time!</p>
 <p><br/></p>
-<p><img src="http://aawiegel.github.io/images/samoyed.jpg" style="width: 100%;"/></p>
+<p><img src="https://aawiegel.github.io/images/samoyed.jpg" style="width: 100%;"/></p>
 <p>Apparently Poochr likes really big, poofy white dogs.</p>
 <p><br/></p>
 <p>Other dog breeds, particularly ones that looked very similar to each other, could not be so easily identified. For example, Australian terriers (21% accuracy) and Yorkshire terriers (31% accuracy) look very similar:</p>
-<p><img src="http://aawiegel.github.io/images/australian_terrier.jpg" alt="Australian Terrier" style="width:50%;"/><img src="http://aawiegel.github.io/images/yorkshire_terrier.jpg" alt="Yorkshire Terrier" style="width=50%;"/></p>
+<p><img src="https://aawiegel.github.io/images/australian_terrier.jpg" alt="Australian Terrier" style="width:50%;"/><img src="https://aawiegel.github.io/images/yorkshire_terrier.jpg" alt="Yorkshire Terrier" style="width=50%;"/></p>
 <p>Can you tell which is which? Yeah, the model can't really either.</p>
 <p><br/></p>
 <p>In general, things like size differences are not apparent from images, so for breeds where the main difference is size, the image classification had a difficult time identifying the breed. A good example of this is the Schnauzer, where there are three different breeds based on the overall size of the dog: miniature, standard, and giant. The model tended to guess between all three, although it was slightly biased in favor of miniature schnauzers (easier to clean up after...?).</p>
@@ -92,7 +92,7 @@
 </ul>
 
 <p>Other features that came up that users were interested in were allowing URLs for images instead of just uploading, providing stock dog images in case you did not have one, and being able to adjust the recommendation based on how much to weight the appearance vs. temperament. I'd also personally like to add a way for users to input feedback more directly. With a better quality corpus, I'd also like to evaluate the performance between topic models, especially since LDA tends to perform better with smaller but longer documents. With better recommendations, hopefully more people can avoid the situation my house mate is in!</p>
-<p>This is part of a two part series where the second part can be found <a href="http://aawiegel.github.io/poochr-2-electric-dogaloo.html">here</a>.</p>
+<p>This is part of a two part series where the second part can be found <a href="https://aawiegel.github.io/poochr-2-electric-dogaloo.html">here</a>.</p>
     </div><!-- /.entry-content -->
 
   </article>
