@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="utf-8" />
         <title>Beer Regression Machine Learning</title>
-        <link rel="stylesheet" href="http://aawiegel.github.io/theme/css/main.css" />
-        <link href="http://aawiegel.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Tyranny of the Variance Atom Feed" />
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="http://aawiegel.github.io/theme/css/main.css" type="text/css" />
+   
 
         <!--[if IE]>
-            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://aawiegel.github.io/css/ie.css"/>
+                <script src="http://aawiegel.github.io/js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://aawiegel.github.io/css/ie6.css"/><![endif]-->
+
 </head>
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="http://aawiegel.github.io/">Tyranny of the Variance </a></h1>
+                <h1><a href="http://aawiegel.github.io">Tyranny of the Variance </a></h1>
                 <nav><ul>
-                    <li><a href="http://aawiegel.github.io/category/career-advice.html">Career Advice</a></li>
-                    <li><a href="http://aawiegel.github.io/category/impressions.html">Impressions</a></li>
+                    <li ><a href="http://aawiegel.github.io/category/career-advice.html">Career Advice</a></li>
+                    <li ><a href="http://aawiegel.github.io/category/impressions.html">Impressions</a></li>
                     <li class="active"><a href="http://aawiegel.github.io/category/projects.html">Projects</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
@@ -24,21 +31,20 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="http://aawiegel.github.io/beer-regression-machine-learning.html" rel="bookmark"
+        <a href="beer-regression-machine-learning.html" rel="bookmark"
            title="Permalink to Beer Regression Machine Learning">Beer Regression Machine Learning</a></h1>
     </header>
 
     <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2017-07-25T00:00:00-07:00">
-                Published: Tue 25 July 2017
+                Tue 25 July 2017
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
+                By <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
         </address>
-<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>.</p>
-
+<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>. </p>
 </footer><!-- /.post-info -->      <h1>Summary</h1>
 <p>Given my interest in home brewing and craft beer, I wanted to analyze the preferences of craft beer geeks, with the hope of using this information to help advise new breweries on which beers to include in their initial tap list. These consumers are novelty-seeking and will spread word of a brewery they like to friends or online, so winning over these consumers early is the key to success.</p>
 <p>To help obtain this information, I web crawled <a href="https://www.beeradvocate.com/">BeerAdvocate</a>, a webisite where craft beer geeks can rate various commercial craft beer. Using these ratings, I wanted to understand which characteristics of the beer were particularly important in determining beer geeks' preferences for craft beer. After a particular beer receives 10 ratings, the website aggregates the users' ratings of the appearance, mouthfeel, smell, and taste to produce a BeerAdvocate score from 0 to 100. In addition, the website also contains information about the number of ratings, spread between each of the ratings (in other words, how polarizing the beer is), alcohol by volume (ABV), and style of the beer.</p>
@@ -67,7 +73,7 @@
 </section>
         <section id="extras" class="body">
                 <div class="blogroll">
-                        <h2>links</h2>
+                        <h2>blogroll</h2>
                         <ul>
                             <li><a href="http://getpelican.com/">Pelican</a></li>
                             <li><a href="http://python.org/">Python.org</a></li>
@@ -77,8 +83,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
-                            <li><a href="http://aawiegel.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-
+                            
                             <li><a href="https://www.linkedin.com/in/aawiegel/">LinkedIn</a></li>
                             <li><a href="https://github.com/aawiegel">GitHub</a></li>
                         </ul>
@@ -86,11 +91,7 @@
         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
 
-                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
 </body>

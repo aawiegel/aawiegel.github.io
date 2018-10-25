@@ -1,39 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="utf-8" />
         <title>Tyranny of the Variance - Projects</title>
-        <link rel="stylesheet" href="http://aawiegel.github.io/theme/css/main.css" />
-        <link href="http://aawiegel.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Tyranny of the Variance Atom Feed" />
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="http://aawiegel.github.io/theme/css/main.css" type="text/css" />
+   
 
         <!--[if IE]>
-            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://aawiegel.github.io/css/ie.css"/>
+                <script src="http://aawiegel.github.io/js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://aawiegel.github.io/css/ie6.css"/><![endif]-->
+
 </head>
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="http://aawiegel.github.io/">Tyranny of the Variance </a></h1>
+                <h1><a href="http://aawiegel.github.io">Tyranny of the Variance </a></h1>
                 <nav><ul>
-                    <li><a href="http://aawiegel.github.io/category/career-advice.html">Career Advice</a></li>
-                    <li><a href="http://aawiegel.github.io/category/impressions.html">Impressions</a></li>
+                    <li ><a href="http://aawiegel.github.io/category/career-advice.html">Career Advice</a></li>
+                    <li ><a href="http://aawiegel.github.io/category/impressions.html">Impressions</a></li>
                     <li class="active"><a href="http://aawiegel.github.io/category/projects.html">Projects</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
+        
+        
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="http://aawiegel.github.io/poochr-2-electric-dogaloo.html">Poochr 2: Electric Dogaloo</a></h1>
+                    <h1 class="entry-title"><a href="http://aawiegel.github.io/poochr-2-electric-dogaloo.html">Poochr 2: Electric Dogaloo</a></h1> 
 <footer class="post-info">
         <abbr class="published" title="2017-11-07T00:00:00-08:00">
-                Published: Tue 07 November 2017
+                Tue 07 November 2017
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
+                By <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
         </address>
-<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>.</p>
-
+<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>. </p>
 </footer><!-- /.post-info --><p><i>This is a follow up to a previous <a href="http://aawiegel.github.io/poochr-dog-breed-recommendations.html">post</a>.</i></p>
 <h2>Overview</h2>
 <p>I was really dissatisfied with the performance of the topic modeling for Poochr's recommendations, so I decided to try a different approach for the text part. Based on examining the typical text input, I noticed people were usually focusing in on a few keywords like "apartment" or "children". So, I decided to try to use word embeddings such as <a href="https://code.google.com/archive/p/word2vec/">word2vec</a> or <a href="https://nlp.stanford.edu/projects/glove/">GloVe</a> instead. Word embeddings are typically trained by using the context in which a word appears to understand the meaning of the word. I used a pretrained GloVe model for this purpose because of the availability of more light weight models that I thought would be more suited to a responsive web app. Word embeddings are typically great for analogies but not so great at antonyms since words with opposite meanings tend to appear in the same context (like big dog or small dog.) Despite this shortcoming, the text part of the recommendations seemed perform better (...and was less sarcastic than topic modeling). However, the size of the word embedding model created some engineering issues, which I was able to overcome with some pruning down on the size of the vocabulary. I also made a few improvements to the interface, and I am continuing to monitor user input and feedback to see if further improvements can be made.</p>
@@ -61,24 +69,24 @@
                     <h1>Other articles</h1>
                     <hr />
                     <ol id="posts-list" class="hfeed">
+        
 
-            <li><article class="hentry">
+ 
+            <li><article class="hentry">    
                 <header>
-                    <h1><a href="http://aawiegel.github.io/poochr-dog-breed-recommendations.html" rel="bookmark"
-                           title="Permalink to Poochr: dog breed recommendations">Poochr: dog breed recommendations</a></h1>
+                        <h1><a href="http://aawiegel.github.io/poochr-dog-breed-recommendations.html" rel="bookmark" title="Permalink to Poochr: dog breed recommendations">Poochr: dog breed recommendations</a></h1>
                 </header>
-
+                
                 <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2017-10-17T00:00:00-07:00">
-                Published: Tue 17 October 2017
+                Tue 17 October 2017
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
+                By <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
         </address>
-<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>.</p>
-
+<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>. </p>
 </footer><!-- /.post-info -->                <h1>Dog breed recommendations</h1>
 <p>The <a href="https://github.com/aawiegel/Poochr">code</a> is available online. This is part of a two part series where the second part can be found <a href="http://aawiegel.github.io/poochr-2-electric-dogaloo.html">here</a>.</p>
 <h2>Summary</h2>
@@ -86,57 +94,57 @@
                 <a class="readmore" href="http://aawiegel.github.io/poochr-dog-breed-recommendations.html">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
+        
 
-            <li><article class="hentry">
+ 
+            <li><article class="hentry">    
                 <header>
-                    <h1><a href="http://aawiegel.github.io/college-closure-risk.html" rel="bookmark"
-                           title="Permalink to College Closure Risk">College Closure Risk</a></h1>
+                        <h1><a href="http://aawiegel.github.io/college-closure-risk.html" rel="bookmark" title="Permalink to College Closure Risk">College Closure Risk</a></h1>
                 </header>
-
+                
                 <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2017-10-02T00:00:00-07:00">
-                Published: Mon 02 October 2017
+                Mon 02 October 2017
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
+                By <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
         </address>
-<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>.</p>
-
+<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>. </p>
 </footer><!-- /.post-info -->                <h1>Summary</h1>
 <p>College closure can cause significant distress to currently enrolled students as they have to transfer to a new school where their previous credits may not be honored. Given the huge public and private investments into post-secondary education, I developed a model that tries to predict whether a college would …</p>
                 <a class="readmore" href="http://aawiegel.github.io/college-closure-risk.html">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
+        
 
-            <li><article class="hentry">
+ 
+            <li><article class="hentry">    
                 <header>
-                    <h1><a href="http://aawiegel.github.io/beer-regression-machine-learning.html" rel="bookmark"
-                           title="Permalink to Beer Regression Machine Learning">Beer Regression Machine Learning</a></h1>
+                        <h1><a href="http://aawiegel.github.io/beer-regression-machine-learning.html" rel="bookmark" title="Permalink to Beer Regression Machine Learning">Beer Regression Machine Learning</a></h1>
                 </header>
-
+                
                 <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2017-07-25T00:00:00-07:00">
-                Published: Tue 25 July 2017
+                Tue 25 July 2017
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
+                By <a class="url fn" href="http://aawiegel.github.io/author/aaron-wiegel.html">Aaron Wiegel</a>
         </address>
-<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>.</p>
-
+<p>In <a href="http://aawiegel.github.io/category/projects.html">Projects</a>. </p>
 </footer><!-- /.post-info -->                <h1>Summary</h1>
 <p>Given my interest in home brewing and craft beer, I wanted to analyze the preferences of craft beer geeks, with the hope of using this information to help advise new breweries on which beers to include in their initial tap list. These consumers are novelty-seeking and will spread word …</p>
                 <a class="readmore" href="http://aawiegel.github.io/beer-regression-machine-learning.html">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
-                </ol><!-- /#posts-list -->
-                </section><!-- /#content -->
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="blogroll">
-                        <h2>links</h2>
+                        <h2>blogroll</h2>
                         <ul>
                             <li><a href="http://getpelican.com/">Pelican</a></li>
                             <li><a href="http://python.org/">Python.org</a></li>
@@ -146,8 +154,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
-                            <li><a href="http://aawiegel.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-
+                            
                             <li><a href="https://www.linkedin.com/in/aawiegel/">LinkedIn</a></li>
                             <li><a href="https://github.com/aawiegel">GitHub</a></li>
                         </ul>
@@ -155,11 +162,7 @@
         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
 
-                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
 </body>
