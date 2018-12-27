@@ -101,7 +101,7 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <p><img src="/images/well_n+1.png" alt="Distribution of the addition impurity" style="width: 100%;"/></p>
 <p><img src="/images/well_cyanoethyl.png" alt="Distribution of the cyanoethyl impurity" style="width: 100%;"/></p>
 <p><img src="/images/well_other_impurity.png" alt="Distribution of the other impurity. Note the distinctly non-normal distribution" style="width: 100%;"/></p>
-<p>Much like the pure yield, most of these metrics have a mostly normal distribution, although sometimes we were lucky enough to get 99.9% pure product and thus 0% n-1 and n+1. In contrast, other_impurity has a distinctly non-normal distribution, where most of the values cluster near 0 with a few extreme values near 1. This is clearly an unusual distribution compared to the rest of the metrics, so we will come back to this later.</p>
+<p>Much like the pure yield, most of these metrics have a mostly normal distribution, although sometimes we were lucky enough to get 99.9% pure product and thus 0% n-1 and n+1. In contrast, other_impurity has a distinctly non-normal distribution, where most of the values cluster near 0 with a few extreme values near 1. This is clearly an unusual distribution compared to the rest of the metrics, but we will ignore this for now.</p>
 <p>To get a sense for how the different metrics might be interrelated (if at all), we can also plot the correlation between the various metrics as a heatmap.</p>
 <p><img src="/images/metric_corr.png" alt="Heatmap of correlations between metrics" style="width: 100%;"/></p>
 <p>We can see that most metrics are not actually correlated at all, except negative correlations n-1 and n+1 with full_length_product, and a mild positive correlation between n-1 and n+1. Clearly, if we have a poor synthesis (many additions and deletions), we will get less of our desired material. The other metrics (cyanoethyl and other impurity) are more related to post-processing and not necessarily strongly related to the other metrics.</p>
@@ -127,7 +127,7 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 </pre></div>
 
 
-<p>Now we have a new data frame of length 1000 that summarizes each of the syntheses in our original data set. We could also look at other summary statistics besides the mean here, but for now let's focus on the behavior of a couple of the synthesis means. Shown below is a plot comparing the distribution of the pure yields on each well to the distribution of the mean pure yield on each synthesis (with only the KDE of each distribution shown for clarity.)</p>
+<p>Now we have a new data frame of length 1000 that summarizes each of the syntheses in our original data set. We could also look at other summary statistics besides the mean here, but for now let's focus on the behavior the synthesis means. Shown below is a plot comparing the distribution of the pure yields on each well to the distribution of the mean pure yield on each synthesis (with only the KDE of each distribution shown for clarity.)</p>
 <p><img src="/images/well_synthesis_pure_yield_comparison.png" alt="Comparison of the distributions of the well pure yield to the synthesis pure yield mean" style="width: 100%;"/></p>
 <p>Here, the distribution of the synthesis mean of the pure yield is a bit narrower than the distribution of the pure yield on each well, but not by much. How does this compare to a random sample of 96 wells? Instead of grouping by synthesis, we could take 1000 random samples of 96 wells from all wells, calculate the mean, and compare the distributions.</p>
 <div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
@@ -149,8 +149,77 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <p>Once we've generated these samples, we can then plot the distribution of the sample pure yield means with the distributions for the wells and synthesis means.</p>
 <p><img src="/images/overall_pure_yield_comparison.png" alt="Comparison of distributions of sample means, synthesis mean, and well pure yields" style="width: 100%;" /></p>
 <p>Why do we see a much narrower distribution for a random sample of 96 wells versus the 96 wells on a synthesis? For that, we turn to the Central Limit Theorem.</p>
+<h2>Experimental Design, Independence, and the Central Limit Theorem</h2>
 <h2>Central Limit Theorem</h2>
-<p>The Central Limit Thoerem, one of the most important theorems in statistics and probability, describes what to expect mathematically when we sample from a population of an <em>independent</em>, <em>identically distributed</em> parameter with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2\)</span>. Namely, if we generate random samples of this parameter of size <em>n</em>, the sample mean <span class="math">\(\bar{x}\)</span> will approximate a normal distribution with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2 / n\)</span> as <span class="math">\(n\)</span> increases. </p>
+<p>The Central Limit Thoerem, one of the most important theorems in statistics and probability, describes what to expect mathematically when we sample from a population of an <em>independent</em>, <em>identically distributed</em> parameter with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2\)</span>. Namely, if we generate random samples of this parameter of size <em>n</em>, the sample mean <span class="math">\(\bar{x}\)</span> will approximate a normal distribution with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2 / n\)</span> as <span class="math">\(n\)</span> increases.</p>
+<p>Therefore, a random sample of 96 wells should have a variance equal to the population variance divided by 96. Let's compare the variance for the entire population of wells, synthesis means, random sample means, and predictions of the Central Limit Theorem.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Mean</th>
+<th>Variance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Well (Population)</td>
+<td>6.986</td>
+<td>3.264</td>
+</tr>
+<tr>
+<td>Synthesis</td>
+<td>6.986</td>
+<td>2.275</td>
+</tr>
+<tr>
+<td>Random Sample</td>
+<td>6.983</td>
+<td>0.032</td>
+</tr>
+<tr>
+<td>Predicted</td>
+<td>6.986</td>
+<td>0.034</td>
+</tr>
+</tbody>
+</table>
+<p>Clearly, the random sample matches our predictions from the Central Limit Theorem, and the 96 wells on an individual synthesis are not independent. We can see this another way by comparing the means between arbitrary subsets of a synthesis or random sample. In this case, I just compared the mean for wells on the left half of the 96-well plate to the mean for wells on the right half of the 96-well plate for a synthesis or random sample. For 96-well random samples, we see almost no correlation between the means from each side as shown below:</p>
+<p><img src="/images/random_correlation.png" alt="Comparison of means for left-side wells to right-side wells for a random sample" style="width: 100%" /></p>
+<p>In contrast, when we compare the means on the left side of the plate with those for the right side of the plate, we see a pretty clear relationship as shown below:</p>
+<p><img src="/images/plate_correlation.png" alt="Comparison of means for left-side wells to right-side wells for a synthesis" style="width: 100%" /></p>
+<p>Thus, the wells on a synthesis are not independent units but are actually interdependent for the reasons mentioned above (e.g., a bad reagent bottle affects the whole synthesis, etc.)  </p>
+<h2>Experimental Design Consequences</h2>
+<p>OK, so what? Sure, the Central Limit Theorem, indepdence, and all that are interesting in an abstract sense, but how does this help design better experiments? Well, if we're not careful about independence in our experimental design, we could end up with spurious results! </p>
+<p>For example, let's suppose we are testing whether some new process change has a positive effect on pure yield. Our null and alternative hypotheses would then be the following:</p>
+<p><span class="math">\(H_0: \text{pure yield}_{\text{new}} = \text{pure yield}_{\text{old}}\)</span></p>
+<p><span class="math">\(H_a: \text{pure yield}_{\text{new}} &gt; \text{pure yield}_{\text{old}}\)</span>   </p>
+<p>We then run a single control synthesis with our old process and a single treatment synthesis with our new process and get the following results:</p>
+<table>
+<thead>
+<tr>
+<th>Synthesis ID</th>
+<th>Experimental Group</th>
+<th>Mean</th>
+<th>Standard Deviation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Control</td>
+<td>5.925</td>
+<td>0.932</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Treatment</td>
+<td>8.995</td>
+<td>1.036</td>
+</tr>
+</tbody>
+</table>
+<p>Looks promising, right? We then naively assume that each well is independent and run our experimental results through a <em>t</em>-test, and whoa, our <em>t</em>-statistic is 21.6 with a <em>p</em>-value of <span class="math">\(5 \times 10^{-53}\)</span>! We should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
