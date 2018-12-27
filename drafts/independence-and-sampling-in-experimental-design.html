@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Independence and sampling in experimental design</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tyranny of the Variance </a></h1>
+                <nav><ul>
+                    <li><a href="/category/career-advice.html">Career Advice</a></li>
+                    <li><a href="/category/impressions.html">Impressions</a></li>
+                    <li class="active"><a href="/category/projects.html">Projects</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/drafts/independence-and-sampling-in-experimental-design.html" rel="bookmark"
+           title="Permalink to Independence and sampling in experimental design">Independence and sampling in experimental design</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <span>Wed 26 December 2018</span>
+
+</footer><!-- /.post-info -->      <h1>Overview</h1>
+<p>Regardless of the application, calculating a particular statistic and associated <em>p</em>-value is not necessarily the biggest challenge in designing experiments. Indeed, given the availability of open source software packages such as scipy and statsmodels in Python, calculating a test statistic is simple and easy. Instead, ensuring that the assumptions required for a statistical test are actually satisfied by the data is far more challenging. Most real world data — in addition to being dirty — will not satisfy these assumptions without careful thinking about experimental design. For example, many test statistics require that the observations or measurements in the data be <em>independent</em> and <em>identically distributed</em>. Furthermore, for parameterized statistical tests, the data also must follow a particular distribution described by the test parameters. Thankfully, because of the Central Limit Theorem, a normal distribution approximates the distribution of many test statistics with a sufficiently large sample size, and thus textbook statistical tests such as the <em>t</em>-test or <em>Z</em>-test can be used. Even then, a data analyst or data scientist must carefully validate that appropriate sampling techniques are used to avoid inappropriate or misleading business and scientific recommendations based on invalid experiments.</p>
+<p>In this blog post, I discuss independence, sampling, and experimental design in the context of my work as a data scientist at Synthego, a biotech manufacturing company. I use a simulated, clean, and simplified data set with features similar to our manufacturing data to demonstrate fundamental statistical concepts and challenges in experimental design. Although the context is chemistry and manufacturing, the core concepts are highly relevant in other contexts, such as designing an A/B testing framework.</p>
+<p>The data used in this blog post and the associated code are available via Github.</p>
+<h1>Introduction</h1>
+<h2>Background</h2>
+<p>Synthego produces chemically modified synthetic guide RNA as a major product for use with the gene editing technology CRISPR-Cas9. Customers order unique RNA sequences that correspond to the target DNA sequence they want to edit. Ninty-six custom sequences are synthesized simultaneously on a 96-well plate shown schematically below:</p>
+<div class="highlight"><pre><span></span>   1  2  3  4  5  6  7  8  9 10 11 12
+  ___________________________________
+A|00|01|02|03|04|05|06|07|08|09|10|11|
+B|12|13|14|15|16|17|18|19|20|21|22|23|
+C|24|25|26|27|28|29|30|31|32|33|34|35|
+D|36|37|38|39|40|41|42|43|44|45|46|47|
+E|48|49|50|51|52|53|54|55|56|57|58|59|
+F|60|61|62|63|64|65|66|67|68|69|70|71|
+G|72|73|74|75|76|77|78|79|80|81|82|83|
+H|84|85|86|87|88|89|90|91|92|93|94|95|
+  –––––––––––––––––––––––––––––––––––
+</pre></div>
+
+
+<p>where the 8 rows correspond to the letters A through H, and the 12 columns correspond to the integers 1 through 12. Each well also has an integer index from 0 to 95 starting from left to right and top to bottom. After synthesis, the entire plate undergoes simultaneous post-processing and purfication steps, and the purity and amount of material is measured. If a well has insufficient RNA material to meet the customer order or contains too many impurities, the associated sequence is re-synthesized. As such, ensuring that enough pure material is synthesized and purified is crucial to ship orders on time at low cost.</p>
+<h2>Data definitions</h2>
+<p>Synthetic (see what I did there), simplified, and clean data was randomly generated for the purposes of this blog post. Keep in mind that the real data from Synthego's manufacturing process (or from anything else for that matter) will not nearly be as clean or have as clear behavior as this. One thousand syntheses with 96 wells each were simulated to create a 960,000 row data set. The data contains several fields describing the amount and purity of the material and synthesis metadata. In the actual manufacturing process, impurities are measured with mass spectrometry and an algorithm that fits known and unknown impurity mass peaks in a spectrum. Common impurities include sequences with one extra or missing nucleotide (base) or with poor purification or post-processing.</p>
+<h3>Metadata</h3>
+<ul>
+<li><code>synthesis_id</code>: integer identifier for a synthesis</li>
+<li><code>well_position</code>: integer identifier for a well</li>
+<li><code>well_position_label</code>: position label for a well on a 96-well plate (letters for rows and numbers for columns)</li>
+</ul>
+<h3>Pure product metrics</h3>
+<ul>
+<li><code>pure_yield</code>: amount of pure material after synthesis and purification in nanomoles (nmol)</li>
+<li><code>full_length_product</code>: percent of full length product</li>
+</ul>
+<h3>Impurity metrics</h3>
+<ul>
+<li><code>n-1</code>: percent of material missing one nucleotide</li>
+<li><code>n+1</code>: percent of material with one extra nucleotide</li>
+<li><code>cyanoethyl</code>: percent of material with an impurity associated with a particular bad reagent</li>
+<li><code>other_impurity</code>: A non-specific measure of impurities not directly fit (a ratio from 0 to 1)</li>
+</ul>
+<p><br /></p>
+<h1>Data Exploration</h1>
+<h2>Well-level data</h2>
+<p>Of course, before we dive too much into anything, we need to explore the data! (Pro-tip: <em><em>Always. Do. EDA. On. Unknown. Data.</em></em>) First, we want to look at the distribution of each of our six metrics. The plotting library <code>seaborn</code> has a useful method here called <code>distplot</code> that combines a histogram with kernel density estimation (KDE) to provide a good sense of the distribution of a metric. We can also fit a distribution function from <code>scipy</code> to this distribution. The actual plot for pure yield and the Python code to generate it is shown below:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;synthetic_data.csv&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;pure_yield&#39;</span><span class="p">],</span> <span class="n">fit</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">norm</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Pure Yield (nmol)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Density&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img src="/images/well_pure_yield.png" alt="Distribution of the pure yield" style="width: 100%;"/></p>
+<p>The distribution for the pure yield is pretty clearly normally distributed from this plot (The fit to the normal distribution almost entirely overlaps with the KDE plot.)</p>
+<p>We can use this same code snippet (rewritten as a function in the code on Github) to generate distribution plots for each of our metrics described above:</p>
+<p><img src="/images/well_full_length_product.png" alt="Distribution of the full length product" style="width: 100%;"/></p>
+<p><img src="/images/well_n-1.png" alt="Distribution of the deletion impurity" style="width: 100%;"/></p>
+<p><img src="/images/well_n+1.png" alt="Distribution of the addition impurity" style="width: 100%;"/></p>
+<p><img src="/images/well_cyanoethyl.png" alt="Distribution of the cyanoethyl impurity" style="width: 100%;"/></p>
+<p><img src="/images/well_other_impurity.png" alt="Distribution of the other impurity. Note the distinctly non-normal distribution" style="width: 100%;"/></p>
+<p>Much like the pure yield, most of these metrics have a mostly normal distribution, although sometimes we were lucky enough to get 99.9% pure product and thus 0% n-1 and n+1. In contrast, other_impurity has a distinctly non-normal distribution, where most of the values cluster near 0 with a few extreme values near 1. This is clearly an unusual distribution compared to the rest of the metrics, so we will come back to this later.</p>
+<p>To get a sense for how the different metrics might be interrelated (if at all), we can also plot the correlation between the various metrics as a heatmap.</p>
+<p><img src="/images/metric_corr.png" alt="Heatmap of correlations between metrics" style="width: 100%;"/></p>
+<p>We can see that most metrics are not actually correlated at all, except negative correlations n-1 and n+1 with full_length_product, and a mild positive correlation between n-1 and n+1. Clearly, if we have a poor synthesis (many additions and deletions), we will get less of our desired material. The other metrics (cyanoethyl and other impurity) are more related to post-processing and not necessarily strongly related to the other metrics.</p>
+<h2>Synthesis-level data</h2>
+<p>Looking at the overall population of wells is certainly important, but what about individual syntheses? We might assume each synthesis is a random sample of 96 individual wells, but that might not actually be the case. Since each RNA guide in the wells on a plate are produced simultaneously, we might see similar effects on the same plate for various reasons (e.g., a bad reagent bottle, accidentally exposing the whole plate to air or water, some hardware failure on the synthesizer, etc.) To examine the behavior of syntheses, we can summarize the data by synthesis using <code>groupby</code> in pandas using this common coding pattern:</p>
+<div class="highlight"><pre><span></span><span class="c1"># Initialize list</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">synthesis_id</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;synthesis_id&#39;</span><span class="p">):</span>
+
+    <span class="c1"># Create dictionary record of summary metrics, and append to results</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;synthesis_id&#39;</span><span class="p">:</span> <span class="n">synthesis_id</span><span class="p">,</span>
+        <span class="s1">&#39;pure_yield&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">pure_yield</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="s1">&#39;full_length_product&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">full_length_product</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="c1"># etc.</span>
+    <span class="p">}</span>
+
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Convert list of records into pandas DataFrame</span>
+<span class="n">synthesis_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now we have a new data frame of length 1000 that summarizes each of the syntheses in our original data set. We could also look at other summary statistics besides the mean here, but for now let's focus on the behavior of a couple of the synthesis means. Shown below is a plot comparing the distribution of the pure yields on each well to the distribution of the mean pure yield on each synthesis (with only the KDE of each distribution shown for clarity.)</p>
+<p><img src="/images/well_synthesis_pure_yield_comparison.png" alt="Comparison of the distributions of the well pure yield to the synthesis pure yield mean" style="width: 100%;"/></p>
+<p>Here, the distribution of the synthesis mean of the pure yield is a bit narrower than the distribution of the pure yield on each well, but not by much. How does this compare to a random sample of 96 wells? Instead of grouping by synthesis, we could take 1000 random samples of 96 wells from all wells, calculate the mean, and compare the distributions.</p>
+<div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">96</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;pure_yield&#39;</span><span class="p">:</span> <span class="n">sample</span><span class="p">[</span><span class="s1">&#39;pure_yield&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="s1">&#39;full_length_product&#39;</span><span class="p">:</span> <span class="n">sample</span><span class="p">[</span><span class="s1">&#39;full_length_product&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="c1"># etc.</span>
+    <span class="p">}</span>
+
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">resampled_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Once we've generated these samples, we can then plot the distribution of the sample pure yield means with the distributions for the wells and synthesis means.</p>
+<p><img src="/images/overall_pure_yield_comparison.png" alt="Comparison of distributions of sample means, synthesis mean, and well pure yields" style="width: 100%;" /></p>
+<p>Why do we see a much narrower distribution for a random sample of 96 wells versus the 96 wells on a synthesis? For that, we turn to the Central Limit Theorem.</p>
+<h2>Central Limit Theorem</h2>
+<p>The Central Limit Thoerem, one of the most important theorems in statistics and probability, describes what to expect mathematically when we sample from a population of an <em>independent</em>, <em>identically distributed</em> parameter with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2\)</span>. Namely, if we generate random samples of this parameter of size <em>n</em>, the sample mean <span class="math">\(\bar{x}\)</span> will approximate a normal distribution with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2 / n\)</span> as <span class="math">\(n\)</span> increases. </p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="https://www.linkedin.com/in/aawiegel/">LinkedIn</a></li>
+                            <li><a href="https://github.com/aawiegel">GitHub</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

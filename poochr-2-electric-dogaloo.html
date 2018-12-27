@@ -3,8 +3,7 @@
 <head>
         <meta charset="utf-8" />
         <title>Poochr 2: Electric Dogaloo</title>
-        <link rel="stylesheet" href="https://aawiegel.github.io/theme/css/main.css" />
-        <link href="https://aawiegel.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Tyranny of the Variance Atom Feed" />
+        <link rel="stylesheet" href="/theme/css/main.css" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -13,11 +12,11 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="https://aawiegel.github.io/">Tyranny of the Variance </a></h1>
+                <h1><a href="/">Tyranny of the Variance </a></h1>
                 <nav><ul>
-                    <li><a href="https://aawiegel.github.io/category/career-advice.html">Career Advice</a></li>
-                    <li><a href="https://aawiegel.github.io/category/impressions.html">Impressions</a></li>
-                    <li class="active"><a href="https://aawiegel.github.io/category/projects.html">Projects</a></li>
+                    <li><a href="/category/career-advice.html">Career Advice</a></li>
+                    <li><a href="/category/impressions.html">Impressions</a></li>
+                    <li class="active"><a href="/category/projects.html">Projects</a></li>
                 </ul>
                 </nav>
         </header><!-- /#banner -->
@@ -25,7 +24,7 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="https://aawiegel.github.io/poochr-2-electric-dogaloo.html" rel="bookmark"
+        <a href="/poochr-2-electric-dogaloo.html" rel="bookmark"
            title="Permalink to Poochr 2: Electric Dogaloo">Poochr 2: Electric Dogaloo</a></h1>
     </header>
 
@@ -33,13 +32,13 @@
 <footer class="post-info">
         <span>Tue 07 November 2017</span>
 
-</footer><!-- /.post-info -->      <p><i>This is a follow up to a previous <a href="https://aawiegel.github.io/poochr-dog-breed-recommendations.html">post</a>.</i></p>
+</footer><!-- /.post-info -->      <p><i>This is a follow up to a previous <a href="/Poochr.md">post</a>.</i></p>
 <h2>Overview</h2>
 <p>I was really dissatisfied with the performance of the topic modeling for Poochr's recommendations, so I decided to try a different approach for the text part. Based on examining the typical text input, I noticed people were usually focusing in on a few keywords like "apartment" or "children". So, I decided to try to use word embeddings such as <a href="https://code.google.com/archive/p/word2vec/">word2vec</a> or <a href="https://nlp.stanford.edu/projects/glove/">GloVe</a> instead. Word embeddings are typically trained by using the context in which a word appears to understand the meaning of the word. I used a pretrained GloVe model for this purpose because of the availability of more light weight models that I thought would be more suited to a responsive web app. Word embeddings are typically great for analogies but not so great at antonyms since words with opposite meanings tend to appear in the same context (like big dog or small dog.) Despite this shortcoming, the text part of the recommendations seemed perform better (...and was less sarcastic than topic modeling). However, the size of the word embedding model created some engineering issues, which I was able to overcome with some pruning down on the size of the vocabulary. I also made a few improvements to the interface, and I am continuing to monitor user input and feedback to see if further improvements can be made.</p>
 <h2>Poochr's previous shortcomings</h2>
 <p>In the previous version of Poochr, I used topic modeling of a corpus describing dog breeds web scraped from dog websites and Wikipedia. I used topic modeling to generate vector representations of each breed topic and cosine similarity to user input to make recommendations. Unfortunately, although the documents were quite long, they contained a lot of "noise text" unrelated to traits people desire in dogs. (I don't think anyone cares that Pembroke Welsh Corgis were Queen Elizabeth II's favorite dog when selecting their next dog.) As a result, the recommender would often make "sarcastic" recommendations like <a href="http://dogtime.com/dog-breeds/bernese-mountain-dog">Burnese Mountain Dog</a> when a user input "apartment".</p>
 <p><br/></p>
-<p><img src="https://aawiegel.github.io/images/burnese.jpg"/></p>
+<p><img src="/images/burnese.jpg"/></p>
 <p>Pro-tip for Poochr: Not a dog that belongs in an apartment.</p>
 <h2>GloVe and word embeddings</h2>
 <p>To circumvent this, I used a pretrained GloVe model instead. Here, GloVe was trained on Wikipedia and news articles so has a much better semantic understanding of the meaning of words. To train, GloVe creates a table of word-word co-occurances (probabilities) and uses this to generate a smaller column of numbers (vectors) that represents the meaning of the word. Due to the mathematics of how it produces these vectors (remember logarithms from algebra?), the differences between vectors represent the ratio of probabilities of that two words might occur together. Because of this, GloVe performs really well on finding word analogies and similarities between words but struggles with antonyms (much like word2vec). Since words with opposite meanings often appear in the same context (good dog vs. bad dog), these types models tend to think the words are similar when they actually have opposing meanings.</p>
@@ -71,7 +70,6 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
-                            <li><a href="https://aawiegel.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="https://www.linkedin.com/in/aawiegel/">LinkedIn</a></li>
                             <li><a href="https://github.com/aawiegel">GitHub</a></li>
