@@ -81,7 +81,6 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;synthetic_data.csv&#39;</span><span class="p">)</span>
 
@@ -149,48 +148,48 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <p>Once we've generated these samples, we can then plot the distribution of the sample pure yield means with the distributions for the wells and synthesis means.</p>
 <p><img src="/images/overall_pure_yield_comparison.png" alt="Comparison of distributions of sample means, synthesis mean, and well pure yields" style="width: 100%;" /></p>
 <p>Why do we see a much narrower distribution for a random sample of 96 wells versus the 96 wells on a synthesis? For that, we turn to the Central Limit Theorem.</p>
-<h2>Experimental Design, Independence, and the Central Limit Theorem</h2>
+<h2>Experimental Design, Sampling, and the Central Limit Theorem</h2>
 <h2>Central Limit Theorem</h2>
-<p>The Central Limit Thoerem, one of the most important theorems in statistics and probability, describes what to expect mathematically when we sample from a population of an <em>independent</em>, <em>identically distributed</em> parameter with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2\)</span>. Namely, if we generate random samples of this parameter of size <em>n</em>, the sample mean <span class="math">\(\bar{x}\)</span> will approximate a normal distribution with mean <span class="math">\(\mu\)</span> and variance <span class="math">\(\sigma^2 / n\)</span> as <span class="math">\(n\)</span> increases.</p>
-<p>Therefore, a random sample of 96 wells should have a variance equal to the population variance divided by 96. Let's compare the variance for the entire population of wells, synthesis means, random sample means, and predictions of the Central Limit Theorem.</p>
+<p>The Central Limit Thoerem, one of the most important theorems in statistics and probability, describes what to expect mathematically when we randomly sample from a population of an <em>independent</em>, <em>identically distributed</em> parameter with mean <span class="math">\(\mu\)</span> and standard deviation <span class="math">\(\sigma\)</span>. Namely, if we generate random samples of this parameter of size <em>n</em>, the sample mean <span class="math">\(\bar{x}\)</span> will approximate a normal distribution with mean <span class="math">\(\mu\)</span> and standard deviation <span class="math">\(\sigma / \sqrt{n}\)</span> as <span class="math">\(n\)</span> increases.</p>
+<p>Therefore, a random sample of 96 wells should have a standard deviation equal to the population standard deviation divided by the square root of 96. Let's compare the standard deviation for the entire population of wells, synthesis means, random sample means, and predictions of the Central Limit Theorem.</p>
 <table>
 <thead>
 <tr>
 <th>Group</th>
 <th>Mean</th>
-<th>Variance</th>
+<th>Standard Deviation</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Well (Population)</td>
 <td>6.986</td>
-<td>3.264</td>
+<td>1.807</td>
 </tr>
 <tr>
 <td>Synthesis</td>
 <td>6.986</td>
-<td>2.275</td>
+<td>1.508</td>
 </tr>
 <tr>
 <td>Random Sample</td>
 <td>6.983</td>
-<td>0.032</td>
+<td>0.178</td>
 </tr>
 <tr>
 <td>Predicted</td>
 <td>6.986</td>
-<td>0.034</td>
+<td>0.184</td>
 </tr>
 </tbody>
 </table>
-<p>Clearly, the random sample matches our predictions from the Central Limit Theorem, and the 96 wells on an individual synthesis are not independent. We can see this another way by comparing the means between arbitrary subsets of a synthesis or random sample. In this case, I just compared the mean for wells on the left half of the 96-well plate to the mean for wells on the right half of the 96-well plate for a synthesis or random sample. For 96-well random samples, we see almost no correlation between the means from each side as shown below:</p>
+<p>Clearly, the random sample matches our predictions from the Central Limit Theorem, and the 96 wells on an individual synthesis are not random samples from the larger population of wells. We can see this another way by comparing the means between arbitrary subsets of a synthesis or random sample. In this case, I just compared the mean for wells on the left half of the 96-well plate to the mean for wells on the right half of the 96-well plate for a synthesis or random sample. For 96-well random samples, we see almost no correlation between the means from each side as shown below:</p>
 <p><img src="/images/random_correlation.png" alt="Comparison of means for left-side wells to right-side wells for a random sample" style="width: 100%" /></p>
-<p>In contrast, when we compare the means on the left side of the plate with those for the right side of the plate, we see a pretty clear relationship as shown below:</p>
+<p>In contrast, when we compare the means on the left side of the plate with those for the right side of the same synthesis, we see a pretty clear relationship as shown below:</p>
 <p><img src="/images/plate_correlation.png" alt="Comparison of means for left-side wells to right-side wells for a synthesis" style="width: 100%" /></p>
 <p>Thus, the wells on a synthesis are not independent units but are actually interdependent for the reasons mentioned above (e.g., a bad reagent bottle affects the whole synthesis, etc.)  </p>
 <h2>Experimental Design Consequences</h2>
-<p>OK, so what? Sure, the Central Limit Theorem, indepdence, and all that are interesting in an abstract sense, but how does this help design better experiments? Well, if we're not careful about independence in our experimental design, we could end up with spurious results! </p>
+<p>OK, so what? Sure, the Central Limit Theorem, sampling, independence, and all that are interesting in an abstract sense, but how does this help design better experiments? Well, if we're not careful about randomization in our experimental design, we could end up with spurious results! </p>
 <p>For example, let's suppose we are testing whether some new process change has a positive effect on pure yield. Our null and alternative hypotheses would then be the following:</p>
 <p><span class="math">\(H_0: \text{pure yield}_{\text{new}} = \text{pure yield}_{\text{old}}\)</span></p>
 <p><span class="math">\(H_a: \text{pure yield}_{\text{new}} &gt; \text{pure yield}_{\text{old}}\)</span>   </p>
@@ -219,7 +218,98 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 </tr>
 </tbody>
 </table>
-<p>Looks promising, right? We then naively assume that each well is independent and run our experimental results through a <em>t</em>-test, and whoa, our <em>t</em>-statistic is 21.6 with a <em>p</em>-value of <span class="math">\(5 \times 10^{-53}\)</span>! We should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
+<p>Looks promising, right? We then naively assume that each well is independent and that a synthesis is a random sample of 96 wells. We perform a <em>t</em>-test with our experimental results and those assumptions as shown below:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy</span>
+
+<span class="n">control_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">synthesis_id</span> <span class="o">==</span> <span class="mi">3</span>
+<span class="n">treatment_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">synthesis_id</span> <span class="o">==</span> <span class="mi">4</span>
+
+<span class="n">t_test_results</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">treatment_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">],</span> 
+                                       <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">control_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">])</span> 
+<span class="k">print</span><span class="p">(</span><span class="n">t_test_results</span><span class="p">)</span>
+<span class="c1"># Output: Ttest_indResult(statistic=21.579125882009635, pvalue=5.402301203063555e-53) </span>
+</pre></div>
+
+
+<p>Whoa, our <em>t</em>-statistic is 21.6 with a <em>p</em>-value of <span class="math">\(5 \times 10^{-53}\)</span>; we should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
+<p>Unfortunately, one of the key assumptions of the <em>t</em> test is that the samples have been randomly drawn from the larger population. As we discussed earlier, a synthesis is not a random sample of 96 wells, though! So, our new process change might be amazing, but we don't have enough evidence of that yet. (Whether we're super geniuses also remains to be seen.) Realizing this, we perform several more syntheses to test our new process change:</p>
+<table>
+<thead>
+<tr>
+<th>Synthesis ID</th>
+<th>Experimental Group</th>
+<th>Mean</th>
+<th>Standard Deviation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Control</td>
+<td>5.925</td>
+<td>0.932</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Treatment</td>
+<td>8.995</td>
+<td>1.036</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Control</td>
+<td>4.962</td>
+<td>1.069</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Treatment</td>
+<td>6.153</td>
+<td>1.048</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Control</td>
+<td>7.703</td>
+<td>0.837</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Treatment</td>
+<td>6.850</td>
+<td>0.977</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Control</td>
+<td>9.458</td>
+<td>0.990</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Treatment</td>
+<td>7.141</td>
+<td>1.030</td>
+</tr>
+</tbody>
+</table>
+<p>We then run our <em>t</em>-test again, this time using the synthesis mean instead of the data from all 96 wells.</p>
+<div class="highlight"><pre><span></span><span class="n">control_mask</span> <span class="o">=</span> <span class="n">synthesis_df</span><span class="o">.</span><span class="n">synthesis_id</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="n">treatment_mask</span> <span class="o">=</span> <span class="n">synthesis_df</span><span class="o">.</span><span class="n">synthesis_id</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+
+<span class="n">t_test_results</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">synthesis_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">treatment_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">],</span>
+                                       <span class="n">synthesis_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">control_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">])</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">t_test_results</span><span class="p">)</span>
+<span class="c1"># Output: Ttest_indResult(statistic=0.23432685490410793, pvalue=0.8225225687422346)</span>
+</pre></div>
+
+
+<p>After correctly applying the <em>t</em> test using appropriate assumptions, we find that we actually do not have enough evidence to reject the null hypothesis. Unfortunately, our new process is not nearly as amazing as we might have thought. (We still might be super geniuses, though.) Of course, we could be seeing a false negative since we may not done enough experiments yet, but that is a subject for another blog post. Either way, had we rushed into running a statistical test without thinking through the underlying assumptions, we could have made erroneous business or scientific recommendations that could have disasterous consequences! (Money lost, papers retracted, or worse)</p>
+<h1>Summary</h1>
+<p>When designing experiments, thinking through and verifying the assumptions of the planned statistical tests ensures that the results are valid. Statistical simulations are a powerful tool to verify these assumptions using existing data, and pandas makes them incredibly simple to perform! Even though you will probably just end up verifying the Central Limit Theorem, in some cases, like the syntheses here, simulation can help clarify key assumptions for experimental design. Simulation can also be used to calculate statistical power (the number of experiments needed to avoid a false positive), but that is a subject for another post!</p>
+<h2>Aside: Sampling from non-normal distributions</h2>
+<p>Placeholder text</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
