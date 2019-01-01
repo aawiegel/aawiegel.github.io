@@ -163,23 +163,23 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <tbody>
 <tr>
 <td>Well (Population)</td>
-<td>6.986</td>
-<td>1.807</td>
+<td>9.976</td>
+<td>2.922</td>
 </tr>
 <tr>
 <td>Synthesis</td>
-<td>6.986</td>
-<td>1.508</td>
+<td>9.976</td>
+<td>2.513</td>
 </tr>
 <tr>
 <td>Random Sample</td>
-<td>6.983</td>
-<td>0.178</td>
+<td>9.981</td>
+<td>0.291</td>
 </tr>
 <tr>
 <td>Predicted</td>
-<td>6.986</td>
-<td>0.184</td>
+<td>9.976</td>
+<td>0.298</td>
 </tr>
 </tbody>
 </table>
@@ -207,14 +207,14 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <tr>
 <td>3</td>
 <td>Control</td>
-<td>5.925</td>
-<td>0.932</td>
+<td>8.211</td>
+<td>1.399</td>
 </tr>
 <tr>
 <td>4</td>
 <td>Treatment</td>
-<td>8.995</td>
-<td>1.036</td>
+<td>13.314</td>
+<td>1.554</td>
 </tr>
 </tbody>
 </table>
@@ -231,7 +231,7 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 </pre></div>
 
 
-<p>Whoa, our <em>t</em>-statistic is 21.6 with a <em>p</em>-value of <span class="math">\(5 \times 10^{-53}\)</span>; we should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
+<p>Whoa, our <em>t</em>-statistic is 23.9 with a <em>p</em>-value of <span class="math">\(3 \times 10^{-59}\)</span>; we should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
 <p>Unfortunately, one of the key assumptions of the <em>t</em> test is that the samples have been randomly drawn from the larger population. As we discussed earlier, a synthesis is not a random sample of 96 wells, though! So, our new process change might be amazing, but we don't have enough evidence of that yet. (Whether we're super geniuses also remains to be seen.) Realizing this, we perform several more syntheses to test our new process change:</p>
 <table>
 <thead>
@@ -246,50 +246,50 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <tr>
 <td>3</td>
 <td>Control</td>
-<td>5.925</td>
-<td>0.932</td>
+<td>8.211</td>
+<td>1.399</td>
 </tr>
 <tr>
 <td>4</td>
 <td>Treatment</td>
-<td>8.995</td>
-<td>1.036</td>
+<td>13.314</td>
+<td>1.554</td>
 </tr>
 <tr>
 <td>5</td>
 <td>Control</td>
-<td>4.962</td>
-<td>1.069</td>
+<td>6.607</td>
+<td>1.603</td>
 </tr>
 <tr>
 <td>6</td>
 <td>Treatment</td>
-<td>6.153</td>
-<td>1.048</td>
+<td>8.603</td>
+<td>1.571</td>
 </tr>
 <tr>
 <td>7</td>
 <td>Control</td>
-<td>7.703</td>
-<td>0.837</td>
+<td>11.220</td>
+<td>1.255</td>
 </tr>
 <tr>
 <td>8</td>
 <td>Treatment</td>
-<td>6.850</td>
-<td>0.977</td>
+<td>9.755</td>
+<td>1.465</td>
 </tr>
 <tr>
 <td>9</td>
 <td>Control</td>
-<td>9.458</td>
-<td>0.990</td>
+<td>14.086</td>
+<td>1.485</td>
 </tr>
 <tr>
 <td>10</td>
 <td>Treatment</td>
-<td>7.141</td>
-<td>1.030</td>
+<td>10.249</td>
+<td>1.545</td>
 </tr>
 </tbody>
 </table>
@@ -307,9 +307,7 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 
 <p>After correctly applying the <em>t</em> test using appropriate assumptions, we find that we actually do not have enough evidence to reject the null hypothesis. Unfortunately, our new process is not nearly as amazing as we might have thought. (We still might be super geniuses, though.) Of course, we could be seeing a false negative since we may not done enough experiments yet, but that is a subject for another blog post. Either way, had we rushed into running a statistical test without thinking through the underlying assumptions, we could have made erroneous business or scientific recommendations that could have disasterous consequences! (Money lost, papers retracted, or worse)</p>
 <h1>Summary</h1>
-<p>When designing experiments, thinking through and verifying the assumptions of the planned statistical tests ensures that the results are valid. Statistical simulations are a powerful tool to verify these assumptions using existing data, and pandas makes them incredibly simple to perform! Even though you will probably just end up verifying the Central Limit Theorem, in some cases, like the syntheses here, simulation can help clarify key assumptions for experimental design. Simulation can also be used to calculate statistical power (the number of experiments needed to avoid a false positive), but that is a subject for another post!</p>
-<h2>Aside: Sampling from non-normal distributions</h2>
-<p>Placeholder text</p>
+<p>When designing experiments, thinking through and verifying the assumptions of the planned statistical tests ensures that the results are valid. Statistical simulations are a powerful tool to verify these assumptions using existing data, and pandas makes them incredibly simple to perform! Even though you will probably just end up verifying the Central Limit Theorem, in some cases, like the syntheses here, simulation can help clarify key assumptions for experimental design. Simulation can also be used to calculate statistical power (the number of experiments needed to avoid a false positive), but that is a subject for another post. There's also some additional interesting consequences to the Central Limit Theorem when the population distribution is not normal.</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
