@@ -24,18 +24,18 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="/drafts/independence-and-sampling-in-experimental-design.html" rel="bookmark"
+        <a href="/independence-and-sampling-in-experimental-design.html" rel="bookmark"
            title="Permalink to Independence and sampling in experimental design">Independence and sampling in experimental design</a></h1>
     </header>
 
     <div class="entry-content">
 <footer class="post-info">
-        <span>Wed 26 December 2018</span>
+        <span>Wed 02 January 2019</span>
 
 </footer><!-- /.post-info -->      <h1>Overview</h1>
 <p>Regardless of the application, calculating a particular statistic and associated <em>p</em>-value is not necessarily the biggest challenge in designing experiments. Indeed, given the availability of open source software packages such as scipy and statsmodels in Python, calculating a test statistic is simple and easy. Instead, ensuring that the assumptions required for a statistical test are actually satisfied by the data is far more challenging. Most real world data — in addition to being dirty — will not satisfy these assumptions without careful thinking about experimental design. For example, many test statistics require that the observations or measurements in the data be <em>independent</em> and <em>identically distributed</em>. Furthermore, for parameterized statistical tests, the data also must follow a particular distribution described by the test parameters. Thankfully, because of the Central Limit Theorem, a normal distribution approximates the distribution of many test statistics with a sufficiently large sample size, and thus textbook statistical tests such as the <em>t</em>-test or <em>Z</em>-test can be used. Even then, a data analyst or data scientist must carefully validate that appropriate sampling techniques are used to avoid inappropriate or misleading business and scientific recommendations based on invalid experiments.</p>
 <p>In this blog post, I discuss independence, sampling, and experimental design in the context of my work as a data scientist at Synthego, a biotech manufacturing company. I use a simulated, clean, and simplified data set with features similar to our manufacturing data to demonstrate fundamental statistical concepts and challenges in experimental design. Although the context is chemistry and manufacturing, the core concepts are highly relevant in other contexts, such as designing an A/B testing framework.</p>
-<p>The data used in this blog post and the associated code are available via Github.</p>
+<p>The data used in this blog post and the associated code are available via <a href="https://github.com/aawiegel/PowerSimulationDemo">Github</a>.</p>
 <h1>Introduction</h1>
 <h2>Background</h2>
 <p>Synthego produces chemically modified synthetic guide RNA as a major product for use with the gene editing technology CRISPR-Cas9. Customers order unique RNA sequences that correspond to the target DNA sequence they want to edit. Ninty-six custom sequences are synthesized simultaneously on a 96-well plate shown schematically below:</p>
@@ -55,7 +55,7 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 
 <p>where the 8 rows correspond to the letters A through H, and the 12 columns correspond to the integers 1 through 12. Each well also has an integer index from 0 to 95 starting from left to right and top to bottom. After synthesis, the entire plate undergoes simultaneous post-processing and purfication steps, and the purity and amount of material is measured. If a well has insufficient RNA material to meet the customer order or contains too many impurities, the associated sequence is re-synthesized. As such, ensuring that enough pure material is synthesized and purified is crucial to ship orders on time at low cost.</p>
 <h2>Data definitions</h2>
-<p>Synthetic (see what I did there), simplified, and clean data was randomly generated for the purposes of this blog post. Keep in mind that the real data from Synthego's manufacturing process (or from anything else for that matter) will not nearly be as clean or have as clear behavior as this. One thousand syntheses with 96 wells each were simulated to create a 960,000 row data set. The data contains several fields describing the amount and purity of the material and synthesis metadata. In the actual manufacturing process, impurities are measured with mass spectrometry and an algorithm that fits known and unknown impurity mass peaks in a spectrum. Common impurities include sequences with one extra or missing nucleotide (base) or with poor purification or post-processing.</p>
+<p>Synthetic (see what I did there), simplified, and clean data was randomly generated for the purposes of this blog post. Keep in mind that the real data from Synthego's manufacturing process (or from anything else for that matter) will not nearly be as clean or have as clear behavior as this. One thousand syntheses with 96 wells each were simulated to create a 96,000 row data set. The data contains several fields describing the amount and purity of the material and synthesis metadata. In the actual manufacturing process, impurities are measured with mass spectrometry and an algorithm that fits known and unknown impurity mass peaks in a spectrum. Common impurities include sequences with one extra or missing nucleotide (base) or with poor purification or post-processing.</p>
 <h3>Metadata</h3>
 <ul>
 <li><code>synthesis_id</code>: integer identifier for a synthesis</li>
@@ -94,7 +94,7 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 
 <p><img src="/images/well_pure_yield.png" alt="Distribution of the pure yield" style="width: 100%;"/></p>
 <p>The distribution for the pure yield is pretty clearly normally distributed from this plot (The fit to the normal distribution almost entirely overlaps with the KDE plot.)</p>
-<p>We can use this same code snippet (rewritten as a function in the code on Github) to generate distribution plots for each of our metrics described above:</p>
+<p>We can use this same code snippet (rewritten as a function in the code on <a href="https://github.com/aawiegel/PowerSimulationDemo">Github</a>) to generate distribution plots for each of our metrics described above:</p>
 <p><img src="/images/well_full_length_product.png" alt="Distribution of the full length product" style="width: 100%;"/></p>
 <p><img src="/images/well_n-1.png" alt="Distribution of the deletion impurity" style="width: 100%;"/></p>
 <p><img src="/images/well_n+1.png" alt="Distribution of the addition impurity" style="width: 100%;"/></p>
@@ -163,23 +163,23 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <tbody>
 <tr>
 <td>Well (Population)</td>
-<td>9.976</td>
-<td>2.922</td>
+<td>29.953</td>
+<td>5.605</td>
 </tr>
 <tr>
 <td>Synthesis</td>
-<td>9.976</td>
-<td>2.513</td>
+<td>29.953</td>
+<td>5.025</td>
 </tr>
 <tr>
 <td>Random Sample</td>
-<td>9.981</td>
-<td>0.291</td>
+<td>29.944</td>
+<td>0.582</td>
 </tr>
 <tr>
 <td>Predicted</td>
-<td>9.976</td>
-<td>0.298</td>
+<td>29.953</td>
+<td>0.572</td>
 </tr>
 </tbody>
 </table>
@@ -190,6 +190,8 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <p>Thus, the wells on a synthesis are not independent units but are actually interdependent for the reasons mentioned above (e.g., a bad reagent bottle affects the whole synthesis, etc.)  </p>
 <h2>Experimental Design Consequences</h2>
 <p>OK, so what? Sure, the Central Limit Theorem, sampling, independence, and all that are interesting in an abstract sense, but how does this help design better experiments? Well, if we're not careful about randomization in our experimental design, we could end up with spurious results! </p>
+<p><img src="https://imgs.xkcd.com/comics/significant.png" style="width: 80%" /></p>
+<p>One unfortunately common type of bad experimental design. (Credit: <a href="https://xkcd.com/882/">XKCD</a>)</p>
 <p>For example, let's suppose we are testing whether some new process change has a positive effect on pure yield. Our null and alternative hypotheses would then be the following:</p>
 <p><span class="math">\(H_0: \text{pure yield}_{\text{new}} = \text{pure yield}_{\text{old}}\)</span></p>
 <p><span class="math">\(H_a: \text{pure yield}_{\text{new}} &gt; \text{pure yield}_{\text{old}}\)</span>   </p>
@@ -207,14 +209,14 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <tr>
 <td>3</td>
 <td>Control</td>
-<td>8.211</td>
-<td>1.399</td>
+<td>26.431</td>
+<td>2.331</td>
 </tr>
 <tr>
 <td>4</td>
 <td>Treatment</td>
-<td>13.314</td>
-<td>1.554</td>
+<td>36.597</td>
+<td>2.590</td>
 </tr>
 </tbody>
 </table>
@@ -227,11 +229,11 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <span class="n">t_test_results</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">treatment_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">],</span> 
                                        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">control_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">])</span> 
 <span class="k">print</span><span class="p">(</span><span class="n">t_test_results</span><span class="p">)</span>
-<span class="c1"># Output: Ttest_indResult(statistic=21.579125882009635, pvalue=5.402301203063555e-53) </span>
+<span class="c1"># Output: Ttest_indResult(statistic=28.581, pvalue=1.014e-70) </span>
 </pre></div>
 
 
-<p>Whoa, our <em>t</em>-statistic is 23.9 with a <em>p</em>-value of <span class="math">\(3 \times 10^{-59}\)</span>; we should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
+<p>Whoa, our <em>t</em>-statistic is 28.6 with a <em>p</em>-value of <span class="math">\(1 \times 10^{-70}\)</span>; we should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
 <p>Unfortunately, one of the key assumptions of the <em>t</em> test is that the samples have been randomly drawn from the larger population. As we discussed earlier, a synthesis is not a random sample of 96 wells, though! So, our new process change might be amazing, but we don't have enough evidence of that yet. (Whether we're super geniuses also remains to be seen.) Realizing this, we perform several more syntheses to test our new process change:</p>
 <table>
 <thead>
@@ -246,50 +248,50 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
 <tr>
 <td>3</td>
 <td>Control</td>
-<td>8.211</td>
-<td>1.399</td>
+<td>26.431</td>
+<td>2.331</td>
 </tr>
 <tr>
 <td>4</td>
 <td>Treatment</td>
-<td>13.314</td>
-<td>1.554</td>
+<td>36.597</td>
+<td>2.590</td>
 </tr>
 <tr>
 <td>5</td>
 <td>Control</td>
-<td>6.607</td>
-<td>1.603</td>
+<td>23.218</td>
+<td>2.671</td>
 </tr>
 <tr>
 <td>6</td>
 <td>Treatment</td>
-<td>8.603</td>
-<td>1.571</td>
+<td>27.248</td>
+<td>2.619</td>
 </tr>
 <tr>
 <td>7</td>
 <td>Control</td>
-<td>11.220</td>
-<td>1.255</td>
+<td>32.588</td>
+<td>2.091</td>
 </tr>
 <tr>
 <td>8</td>
 <td>Treatment</td>
-<td>9.755</td>
-<td>1.465</td>
+<td>29.525</td>
+<td>2.442</td>
 </tr>
 <tr>
 <td>9</td>
 <td>Control</td>
-<td>14.086</td>
-<td>1.485</td>
+<td>38.142</td>
+<td>2.475</td>
 </tr>
 <tr>
 <td>10</td>
 <td>Treatment</td>
-<td>10.249</td>
-<td>1.545</td>
+<td>30.541</td>
+<td>2.576</td>
 </tr>
 </tbody>
 </table>
@@ -301,7 +303,7 @@ H|84|85|86|87|88|89|90|91|92|93|94|95|
                                        <span class="n">synthesis_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">control_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">])</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">t_test_results</span><span class="p">)</span>
-<span class="c1"># Output: Ttest_indResult(statistic=0.23432685490410793, pvalue=0.8225225687422346)</span>
+<span class="c1"># Output: Ttest_indResult(statistic=0.228, pvalue=0.827)</span>
 </pre></div>
 
 

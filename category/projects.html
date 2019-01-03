@@ -23,36 +23,364 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/poochr-2-electric-dogaloo.html">Poochr 2: Electric Dogaloo</a></h1>
+                    <h1 class="entry-title"><a href="/independence-and-sampling-in-experimental-design.html">Independence and sampling in experimental design</a></h1>
 <footer class="post-info">
-        <span>Tue 07 November 2017</span>
+        <span>Wed 02 January 2019</span>
 
-</footer><!-- /.post-info --><p><i>This is a follow up to a previous <a href="/Poochr.md">post</a>.</i></p>
-<h2>Overview</h2>
-<p>I was really dissatisfied with the performance of the topic modeling for Poochr's recommendations, so I decided to try a different approach for the text part. Based on examining the typical text input, I noticed people were usually focusing in on a few keywords like "apartment" or "children". So, I decided to try to use word embeddings such as <a href="https://code.google.com/archive/p/word2vec/">word2vec</a> or <a href="https://nlp.stanford.edu/projects/glove/">GloVe</a> instead. Word embeddings are typically trained by using the context in which a word appears to understand the meaning of the word. I used a pretrained GloVe model for this purpose because of the availability of more light weight models that I thought would be more suited to a responsive web app. Word embeddings are typically great for analogies but not so great at antonyms since words with opposite meanings tend to appear in the same context (like big dog or small dog.) Despite this shortcoming, the text part of the recommendations seemed perform better (...and was less sarcastic than topic modeling). However, the size of the word embedding model created some engineering issues, which I was able to overcome with some pruning down on the size of the vocabulary. I also made a few improvements to the interface, and I am continuing to monitor user input and feedback to see if further improvements can be made.</p>
-<h2>Poochr's previous shortcomings</h2>
-<p>In the previous version of Poochr, I used topic modeling of a corpus describing dog breeds web scraped from dog websites and Wikipedia. I used topic modeling to generate vector representations of each breed topic and cosine similarity to user input to make recommendations. Unfortunately, although the documents were quite long, they contained a lot of "noise text" unrelated to traits people desire in dogs. (I don't think anyone cares that Pembroke Welsh Corgis were Queen Elizabeth II's favorite dog when selecting their next dog.) As a result, the recommender would often make "sarcastic" recommendations like <a href="http://dogtime.com/dog-breeds/bernese-mountain-dog">Burnese Mountain Dog</a> when a user input "apartment".</p>
-<p><br/></p>
-<p><img src="/images/burnese.jpg"/></p>
-<p>Pro-tip for Poochr: Not a dog that belongs in an apartment.</p>
-<h2>GloVe and word embeddings</h2>
-<p>To circumvent this, I used a pretrained GloVe model instead. Here, GloVe was trained on Wikipedia and news articles so has a much better semantic understanding of the meaning of words. To train, GloVe creates a table of word-word co-occurances (probabilities) and uses this to generate a smaller column of numbers (vectors) that represents the meaning of the word. Due to the mathematics of how it produces these vectors (remember logarithms from algebra?), the differences between vectors represent the ratio of probabilities of that two words might occur together. Because of this, GloVe performs really well on finding word analogies and similarities between words but struggles with antonyms (much like word2vec). Since words with opposite meanings often appear in the same context (good dog vs. bad dog), these types models tend to think the words are similar when they actually have opposing meanings.</p>
-<h2>Feature engineering: the return of dog2vec</h2>
-<p>To try to best create dog vectors and deal with the noisy text data, I more carefully created features to describe each dog breed with words. To do this, I used numerical 5-star ratings that one dog breed website gave each dog on various traits such as "tendancy to bark" or "kid friendly". For each star rating above 3, I added one word associated with that trait. Here, I avoided adding words when I did not think users would search for them. (I don't think anyone necessarily wants a dog that barks a lot.) For example, if a dog such as the Yorkshire Terrier had a 5-star rating for "energy level", I added the word "energetic" to the words describing the dog twice. I also did the same for star ratings below 3 when the trait might be relevant. For example, if a dog had a 2-star rating for "exercise needs", I added the word "lazy" to the words describing the dog once. I then went through each word and added the GloVe vector for each word up to construct a total dog word vector. In essence, I converted a number into words and then back into numbers again. (num2word2vec?)</p>
-<p><br/></p>
-<p>Here, the issue with antonyms and context based techniques like word2vec/GloVe were an important consideration. I tried to get around this issue by avoiding putting two directly opposing words as part of the dog word vectors such as "big" and "small". I used words that captured some of that same meaning like "apartment" to describe dogs who adapt well to apartment living (like <em>gasp</em> Chihuahuas) who are generally small. While this does not entirely circumvent the issue, I think it helped reduce the sarcastic recommendation problem I discussed above. (Prove me wrong by testing the <a href="https://poochr-182700.appspot.com/">web app</a> out!)</p>
-<h2>Engineering challenges in using word embeddings</h2>
-<p>One of the biggest problems with modifying Poochr to include word embeddings actually was more on the engineering side than on the data science side. Namely, compared to topic modeling, word embeddings are much more resource intensive even if you use a pre-trained model. Although I tried to use the smallest, 50-dimensional, 400,000 word vocabulary GloVe model, I kept getting timeout errors with my workers trying to load the models in Google App Engine. Based on looking at the error logs, the virtual machines were running out of RAM and thus trying to load everything with virtual memory, which is very slow in comparison.</p>
-<p><br/></p>
-<p>While I could have just increased the size of the virtual machines' RAM, I decided to try to come up with a low-weight version since the app already serves slowly as it is. Based on previous users' input, I checked how rare the words people used to describe their ideal dog. Almost all of the words were within the first 100,000 most common words in this GloVe model's vocabulary, so I trimmed the vocabulary of the GloVe model down to 100,000 words. This greatly reduced the size of the model, so I could then easily run Poochr again without much loss in the quality of the recommendations. If I wanted to further improve the speed of the recommendations, I would probably also try to retrain the image model with <a href="https://github.com/DeepScale/SqueezeNet">Squeezenet</a>, which is smaller than Xception and more suited to user-facing applications.</p>
-<h2>Summary</h2>
-<p>Word embeddings can be a great way to get more semantic relationships with words, particularly analogies, but do run into trouble with antonyms. Compared to using topic modeling for recommendations, though, they are definitely superior in performance if you have a smaller number of documents where where a few keywords are important.  If you're considering using them in a user-facing application, be careful! Even the smaller pre-trained models are pretty large and may cause issues with memory. In any case, this was a fun project to work on, especially since I learned a lot about the user experience and engineering side of a data science project.</p>
-<p><br/></p>
-<p>The project code is available <a href="https://github.com/aawiegel/Poochr">here</a>.</p>                </article>
+</footer><!-- /.post-info --><h1>Overview</h1>
+<p>Regardless of the application, calculating a particular statistic and associated <em>p</em>-value is not necessarily the biggest challenge in designing experiments. Indeed, given the availability of open source software packages such as scipy and statsmodels in Python, calculating a test statistic is simple and easy. Instead, ensuring that the assumptions required for a statistical test are actually satisfied by the data is far more challenging. Most real world data — in addition to being dirty — will not satisfy these assumptions without careful thinking about experimental design. For example, many test statistics require that the observations or measurements in the data be <em>independent</em> and <em>identically distributed</em>. Furthermore, for parameterized statistical tests, the data also must follow a particular distribution described by the test parameters. Thankfully, because of the Central Limit Theorem, a normal distribution approximates the distribution of many test statistics with a sufficiently large sample size, and thus textbook statistical tests such as the <em>t</em>-test or <em>Z</em>-test can be used. Even then, a data analyst or data scientist must carefully validate that appropriate sampling techniques are used to avoid inappropriate or misleading business and scientific recommendations based on invalid experiments.</p>
+<p>In this blog post, I discuss independence, sampling, and experimental design in the context of my work as a data scientist at Synthego, a biotech manufacturing company. I use a simulated, clean, and simplified data set with features similar to our manufacturing data to demonstrate fundamental statistical concepts and challenges in experimental design. Although the context is chemistry and manufacturing, the core concepts are highly relevant in other contexts, such as designing an A/B testing framework.</p>
+<p>The data used in this blog post and the associated code are available via <a href="https://github.com/aawiegel/PowerSimulationDemo">Github</a>.</p>
+<h1>Introduction</h1>
+<h2>Background</h2>
+<p>Synthego produces chemically modified synthetic guide RNA as a major product for use with the gene editing technology CRISPR-Cas9. Customers order unique RNA sequences that correspond to the target DNA sequence they want to edit. Ninty-six custom sequences are synthesized simultaneously on a 96-well plate shown schematically below:</p>
+<div class="highlight"><pre><span></span>   1  2  3  4  5  6  7  8  9 10 11 12
+  ___________________________________
+A|00|01|02|03|04|05|06|07|08|09|10|11|
+B|12|13|14|15|16|17|18|19|20|21|22|23|
+C|24|25|26|27|28|29|30|31|32|33|34|35|
+D|36|37|38|39|40|41|42|43|44|45|46|47|
+E|48|49|50|51|52|53|54|55|56|57|58|59|
+F|60|61|62|63|64|65|66|67|68|69|70|71|
+G|72|73|74|75|76|77|78|79|80|81|82|83|
+H|84|85|86|87|88|89|90|91|92|93|94|95|
+  –––––––––––––––––––––––––––––––––––
+</pre></div>
+
+
+<p>where the 8 rows correspond to the letters A through H, and the 12 columns correspond to the integers 1 through 12. Each well also has an integer index from 0 to 95 starting from left to right and top to bottom. After synthesis, the entire plate undergoes simultaneous post-processing and purfication steps, and the purity and amount of material is measured. If a well has insufficient RNA material to meet the customer order or contains too many impurities, the associated sequence is re-synthesized. As such, ensuring that enough pure material is synthesized and purified is crucial to ship orders on time at low cost.</p>
+<h2>Data definitions</h2>
+<p>Synthetic (see what I did there), simplified, and clean data was randomly generated for the purposes of this blog post. Keep in mind that the real data from Synthego's manufacturing process (or from anything else for that matter) will not nearly be as clean or have as clear behavior as this. One thousand syntheses with 96 wells each were simulated to create a 96,000 row data set. The data contains several fields describing the amount and purity of the material and synthesis metadata. In the actual manufacturing process, impurities are measured with mass spectrometry and an algorithm that fits known and unknown impurity mass peaks in a spectrum. Common impurities include sequences with one extra or missing nucleotide (base) or with poor purification or post-processing.</p>
+<h3>Metadata</h3>
+<ul>
+<li><code>synthesis_id</code>: integer identifier for a synthesis</li>
+<li><code>well_position</code>: integer identifier for a well</li>
+<li><code>well_position_label</code>: position label for a well on a 96-well plate (letters for rows and numbers for columns)</li>
+</ul>
+<h3>Pure product metrics</h3>
+<ul>
+<li><code>pure_yield</code>: amount of pure material after synthesis and purification in nanomoles (nmol)</li>
+<li><code>full_length_product</code>: percent of full length product</li>
+</ul>
+<h3>Impurity metrics</h3>
+<ul>
+<li><code>n-1</code>: percent of material missing one nucleotide</li>
+<li><code>n+1</code>: percent of material with one extra nucleotide</li>
+<li><code>cyanoethyl</code>: percent of material with an impurity associated with a particular bad reagent</li>
+<li><code>other_impurity</code>: A non-specific measure of impurities not directly fit (a ratio from 0 to 1)</li>
+</ul>
+<p><br /></p>
+<h1>Data Exploration</h1>
+<h2>Well-level data</h2>
+<p>Of course, before we dive too much into anything, we need to explore the data! (Pro-tip: <em><em>Always. Do. EDA. On. Unknown. Data.</em></em>) First, we want to look at the distribution of each of our six metrics. The plotting library <code>seaborn</code> has a useful method here called <code>distplot</code> that combines a histogram with kernel density estimation (KDE) to provide a good sense of the distribution of a metric. We can also fit a distribution function from <code>scipy</code> to this distribution. The actual plot for pure yield and the Python code to generate it is shown below:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;synthetic_data.csv&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;pure_yield&#39;</span><span class="p">],</span> <span class="n">fit</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">norm</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Pure Yield (nmol)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Density&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img src="/images/well_pure_yield.png" alt="Distribution of the pure yield" style="width: 100%;"/></p>
+<p>The distribution for the pure yield is pretty clearly normally distributed from this plot (The fit to the normal distribution almost entirely overlaps with the KDE plot.)</p>
+<p>We can use this same code snippet (rewritten as a function in the code on <a href="https://github.com/aawiegel/PowerSimulationDemo">Github</a>) to generate distribution plots for each of our metrics described above:</p>
+<p><img src="/images/well_full_length_product.png" alt="Distribution of the full length product" style="width: 100%;"/></p>
+<p><img src="/images/well_n-1.png" alt="Distribution of the deletion impurity" style="width: 100%;"/></p>
+<p><img src="/images/well_n+1.png" alt="Distribution of the addition impurity" style="width: 100%;"/></p>
+<p><img src="/images/well_cyanoethyl.png" alt="Distribution of the cyanoethyl impurity" style="width: 100%;"/></p>
+<p><img src="/images/well_other_impurity.png" alt="Distribution of the other impurity. Note the distinctly non-normal distribution" style="width: 100%;"/></p>
+<p>Much like the pure yield, most of these metrics have a mostly normal distribution, although sometimes we were lucky enough to get 99.9% pure product and thus 0% n-1 and n+1. In contrast, other_impurity has a distinctly non-normal distribution, where most of the values cluster near 0 with a few extreme values near 1. This is clearly an unusual distribution compared to the rest of the metrics, but we will ignore this for now.</p>
+<p>To get a sense for how the different metrics might be interrelated (if at all), we can also plot the correlation between the various metrics as a heatmap.</p>
+<p><img src="/images/metric_corr.png" alt="Heatmap of correlations between metrics" style="width: 100%;"/></p>
+<p>We can see that most metrics are not actually correlated at all, except negative correlations n-1 and n+1 with full_length_product, and a mild positive correlation between n-1 and n+1. Clearly, if we have a poor synthesis (many additions and deletions), we will get less of our desired material. The other metrics (cyanoethyl and other impurity) are more related to post-processing and not necessarily strongly related to the other metrics.</p>
+<h2>Synthesis-level data</h2>
+<p>Looking at the overall population of wells is certainly important, but what about individual syntheses? We might assume each synthesis is a random sample of 96 individual wells, but that might not actually be the case. Since each RNA guide in the wells on a plate are produced simultaneously, we might see similar effects on the same plate for various reasons (e.g., a bad reagent bottle, accidentally exposing the whole plate to air or water, some hardware failure on the synthesizer, etc.) To examine the behavior of syntheses, we can summarize the data by synthesis using <code>groupby</code> in pandas using this common coding pattern:</p>
+<div class="highlight"><pre><span></span><span class="c1"># Initialize list</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">synthesis_id</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;synthesis_id&#39;</span><span class="p">):</span>
+
+    <span class="c1"># Create dictionary record of summary metrics, and append to results</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;synthesis_id&#39;</span><span class="p">:</span> <span class="n">synthesis_id</span><span class="p">,</span>
+        <span class="s1">&#39;pure_yield&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">pure_yield</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="s1">&#39;full_length_product&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">full_length_product</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="c1"># etc.</span>
+    <span class="p">}</span>
+
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Convert list of records into pandas DataFrame</span>
+<span class="n">synthesis_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now we have a new data frame of length 1000 that summarizes each of the syntheses in our original data set. We could also look at other summary statistics besides the mean here, but for now let's focus on the behavior the synthesis means. Shown below is a plot comparing the distribution of the pure yields on each well to the distribution of the mean pure yield on each synthesis (with only the KDE of each distribution shown for clarity.)</p>
+<p><img src="/images/well_synthesis_pure_yield_comparison.png" alt="Comparison of the distributions of the well pure yield to the synthesis pure yield mean" style="width: 100%;"/></p>
+<p>Here, the distribution of the synthesis mean of the pure yield is a bit narrower than the distribution of the pure yield on each well, but not by much. How does this compare to a random sample of 96 wells? Instead of grouping by synthesis, we could take 1000 random samples of 96 wells from all wells, calculate the mean, and compare the distributions.</p>
+<div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">96</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;pure_yield&#39;</span><span class="p">:</span> <span class="n">sample</span><span class="p">[</span><span class="s1">&#39;pure_yield&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="s1">&#39;full_length_product&#39;</span><span class="p">:</span> <span class="n">sample</span><span class="p">[</span><span class="s1">&#39;full_length_product&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="c1"># etc.</span>
+    <span class="p">}</span>
+
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">resampled_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Once we've generated these samples, we can then plot the distribution of the sample pure yield means with the distributions for the wells and synthesis means.</p>
+<p><img src="/images/overall_pure_yield_comparison.png" alt="Comparison of distributions of sample means, synthesis mean, and well pure yields" style="width: 100%;" /></p>
+<p>Why do we see a much narrower distribution for a random sample of 96 wells versus the 96 wells on a synthesis? For that, we turn to the Central Limit Theorem.</p>
+<h2>Experimental Design, Sampling, and the Central Limit Theorem</h2>
+<h2>Central Limit Theorem</h2>
+<p>The Central Limit Thoerem, one of the most important theorems in statistics and probability, describes what to expect mathematically when we randomly sample from a population of an <em>independent</em>, <em>identically distributed</em> parameter with mean <span class="math">\(\mu\)</span> and standard deviation <span class="math">\(\sigma\)</span>. Namely, if we generate random samples of this parameter of size <em>n</em>, the sample mean <span class="math">\(\bar{x}\)</span> will approximate a normal distribution with mean <span class="math">\(\mu\)</span> and standard deviation <span class="math">\(\sigma / \sqrt{n}\)</span> as <span class="math">\(n\)</span> increases.</p>
+<p>Therefore, a random sample of 96 wells should have a standard deviation equal to the population standard deviation divided by the square root of 96. Let's compare the standard deviation for the entire population of wells, synthesis means, random sample means, and predictions of the Central Limit Theorem.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Mean</th>
+<th>Standard Deviation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Well (Population)</td>
+<td>29.953</td>
+<td>5.605</td>
+</tr>
+<tr>
+<td>Synthesis</td>
+<td>29.953</td>
+<td>5.025</td>
+</tr>
+<tr>
+<td>Random Sample</td>
+<td>29.944</td>
+<td>0.582</td>
+</tr>
+<tr>
+<td>Predicted</td>
+<td>29.953</td>
+<td>0.572</td>
+</tr>
+</tbody>
+</table>
+<p>Clearly, the random sample matches our predictions from the Central Limit Theorem, and the 96 wells on an individual synthesis are not random samples from the larger population of wells. We can see this another way by comparing the means between arbitrary subsets of a synthesis or random sample. In this case, I just compared the mean for wells on the left half of the 96-well plate to the mean for wells on the right half of the 96-well plate for a synthesis or random sample. For 96-well random samples, we see almost no correlation between the means from each side as shown below:</p>
+<p><img src="/images/random_correlation.png" alt="Comparison of means for left-side wells to right-side wells for a random sample" style="width: 100%" /></p>
+<p>In contrast, when we compare the means on the left side of the plate with those for the right side of the same synthesis, we see a pretty clear relationship as shown below:</p>
+<p><img src="/images/plate_correlation.png" alt="Comparison of means for left-side wells to right-side wells for a synthesis" style="width: 100%" /></p>
+<p>Thus, the wells on a synthesis are not independent units but are actually interdependent for the reasons mentioned above (e.g., a bad reagent bottle affects the whole synthesis, etc.)  </p>
+<h2>Experimental Design Consequences</h2>
+<p>OK, so what? Sure, the Central Limit Theorem, sampling, independence, and all that are interesting in an abstract sense, but how does this help design better experiments? Well, if we're not careful about randomization in our experimental design, we could end up with spurious results! </p>
+<p><img src="https://imgs.xkcd.com/comics/significant.png" style="width: 80%" /></p>
+<p>One unfortunately common type of bad experimental design. (Credit: <a href="https://xkcd.com/882/">XKCD</a>)</p>
+<p>For example, let's suppose we are testing whether some new process change has a positive effect on pure yield. Our null and alternative hypotheses would then be the following:</p>
+<p><span class="math">\(H_0: \text{pure yield}_{\text{new}} = \text{pure yield}_{\text{old}}\)</span></p>
+<p><span class="math">\(H_a: \text{pure yield}_{\text{new}} &gt; \text{pure yield}_{\text{old}}\)</span>   </p>
+<p>We then run a single control synthesis with our old process and a single treatment synthesis with our new process and get the following results:</p>
+<table>
+<thead>
+<tr>
+<th>Synthesis ID</th>
+<th>Experimental Group</th>
+<th>Mean</th>
+<th>Standard Deviation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Control</td>
+<td>26.431</td>
+<td>2.331</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Treatment</td>
+<td>36.597</td>
+<td>2.590</td>
+</tr>
+</tbody>
+</table>
+<p>Looks promising, right? We then naively assume that each well is independent and that a synthesis is a random sample of 96 wells. We perform a <em>t</em>-test with our experimental results and those assumptions as shown below:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy</span>
+
+<span class="n">control_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">synthesis_id</span> <span class="o">==</span> <span class="mi">3</span>
+<span class="n">treatment_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">synthesis_id</span> <span class="o">==</span> <span class="mi">4</span>
+
+<span class="n">t_test_results</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">treatment_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">],</span> 
+                                       <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">control_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">])</span> 
+<span class="k">print</span><span class="p">(</span><span class="n">t_test_results</span><span class="p">)</span>
+<span class="c1"># Output: Ttest_indResult(statistic=28.581, pvalue=1.014e-70) </span>
+</pre></div>
+
+
+<p>Whoa, our <em>t</em>-statistic is 28.6 with a <em>p</em>-value of <span class="math">\(1 \times 10^{-70}\)</span>; we should definitely reject the null hypothesis. Clearly, our new process change is amazing, and we're super geniuses for thinking of it. Is that really true, though?</p>
+<p>Unfortunately, one of the key assumptions of the <em>t</em> test is that the samples have been randomly drawn from the larger population. As we discussed earlier, a synthesis is not a random sample of 96 wells, though! So, our new process change might be amazing, but we don't have enough evidence of that yet. (Whether we're super geniuses also remains to be seen.) Realizing this, we perform several more syntheses to test our new process change:</p>
+<table>
+<thead>
+<tr>
+<th>Synthesis ID</th>
+<th>Experimental Group</th>
+<th>Mean</th>
+<th>Standard Deviation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Control</td>
+<td>26.431</td>
+<td>2.331</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Treatment</td>
+<td>36.597</td>
+<td>2.590</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Control</td>
+<td>23.218</td>
+<td>2.671</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Treatment</td>
+<td>27.248</td>
+<td>2.619</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Control</td>
+<td>32.588</td>
+<td>2.091</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Treatment</td>
+<td>29.525</td>
+<td>2.442</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Control</td>
+<td>38.142</td>
+<td>2.475</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Treatment</td>
+<td>30.541</td>
+<td>2.576</td>
+</tr>
+</tbody>
+</table>
+<p>We then run our <em>t</em>-test again, this time using the synthesis mean instead of the data from all 96 wells.</p>
+<div class="highlight"><pre><span></span><span class="n">control_mask</span> <span class="o">=</span> <span class="n">synthesis_df</span><span class="o">.</span><span class="n">synthesis_id</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="n">treatment_mask</span> <span class="o">=</span> <span class="n">synthesis_df</span><span class="o">.</span><span class="n">synthesis_id</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+
+<span class="n">t_test_results</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">synthesis_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">treatment_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">],</span>
+                                       <span class="n">synthesis_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">control_mask</span><span class="p">,</span> <span class="s1">&#39;pure_yield&#39;</span><span class="p">])</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">t_test_results</span><span class="p">)</span>
+<span class="c1"># Output: Ttest_indResult(statistic=0.228, pvalue=0.827)</span>
+</pre></div>
+
+
+<p>After correctly applying the <em>t</em> test using appropriate assumptions, we find that we actually do not have enough evidence to reject the null hypothesis. Unfortunately, our new process is not nearly as amazing as we might have thought. (We still might be super geniuses, though.) Of course, we could be seeing a false negative since we may not done enough experiments yet, but that is a subject for another blog post. Either way, had we rushed into running a statistical test without thinking through the underlying assumptions, we could have made erroneous business or scientific recommendations that could have disasterous consequences! (Money lost, papers retracted, or worse)</p>
+<h1>Summary</h1>
+<p>When designing experiments, thinking through and verifying the assumptions of the planned statistical tests ensures that the results are valid. Statistical simulations are a powerful tool to verify these assumptions using existing data, and pandas makes them incredibly simple to perform! Even though you will probably just end up verifying the Central Limit Theorem, in some cases, like the syntheses here, simulation can help clarify key assumptions for experimental design. Simulation can also be used to calculate statistical power (the number of experiments needed to avoid a false positive), but that is a subject for another post. There's also some additional interesting consequences to the Central Limit Theorem when the population distribution is not normal.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>                </article>
             </aside><!-- /#featured -->
                 <section id="content" class="body">
                     <h1>Other articles</h1>
                     <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/poochr-2-electric-dogaloo.html" rel="bookmark"
+                           title="Permalink to Poochr 2: Electric Dogaloo">Poochr 2: Electric Dogaloo</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Tue 07 November 2017</span>
+
+</footer><!-- /.post-info -->                <p><i>This is a follow up to a previous <a href="/Poochr.md">post</a>.</i></p>
+<h2>Overview</h2>
+<p>I was really dissatisfied with the performance of the topic modeling for Poochr's recommendations, so I decided to try a different approach for the text part. Based on examining the typical text input, I noticed people were usually focusing in …</p>
+                <a class="readmore" href="/poochr-2-electric-dogaloo.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
 
             <li><article class="hentry">
                 <header>
